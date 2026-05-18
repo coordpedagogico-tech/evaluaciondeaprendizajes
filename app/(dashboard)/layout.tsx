@@ -12,6 +12,7 @@ const navItems = [
   { href: '/crear', icon: '✏️', label: 'Crear Evaluación' },
   { href: '/pauta', icon: '📋', label: 'Generar Pauta' },
   { href: '/tabla', icon: '📊', label: 'Tabla de Especificaciones' },
+  { href: '/mis-evaluaciones', icon: '📁', label: 'Mis Evaluaciones' },
 ]
 
 function DashboardNav() {

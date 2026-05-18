@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const registered = searchParams.get('registered') === '1'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -35,6 +37,12 @@ export default function LoginPage() {
     <div className="bg-white rounded-2xl shadow-2xl p-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-1">Iniciar Sesión</h2>
       <p className="text-gray-500 text-sm mb-6">Accede a tu cuenta para continuar</p>
+
+      {registered && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-4">
+          ¡Cuenta creada exitosamente! Inicia sesión para continuar.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

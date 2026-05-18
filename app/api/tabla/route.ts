@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { analyzeWithAI } from '@/lib/ai'
 import { buildTablaEspecificacionesPrompt } from '@/lib/curriculum'
+import { prisma } from '@/lib/db'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -34,6 +35,19 @@ export async function POST(req: NextRequest) {
     } catch {
       return NextResponse.json({ error: 'Error al procesar la respuesta de IA' }, { status: 500 })
     }
+
+    const userId = (session.user as { id: string }).id
+    await prisma.evaluacion.create({
+      data: {
+        titulo: `Tabla de Especificaciones — ${params.asignatura} ${params.nivel}`,
+        asignatura: params.asignatura,
+        nivel: params.nivel,
+        tipo: 'tabla',
+        contenido: params.oas.substring(0, 5000),
+        analisis: JSON.stringify(tabla),
+        userId,
+      },
+    })
 
     return NextResponse.json({ tabla })
   } catch (error) {

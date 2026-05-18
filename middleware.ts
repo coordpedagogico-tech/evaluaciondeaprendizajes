@@ -11,6 +11,7 @@ export const config = {
     '/crear/:path*',
     '/pauta/:path*',
     '/tabla/:path*',
-    '/admin/:path*'
+    '/admin/:path*',
+    '/mis-evaluaciones/:path*',
   ]
 }
