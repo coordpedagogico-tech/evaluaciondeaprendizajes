@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9fafb;
+  --foreground: #111827;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Print styles */
+@media print {
+  .print\:hidden { display: none !important; }
+  body { background: white; font-size: 11pt; }
+  @page { margin: 1.5cm; }
+
+  h1 { font-size: 16pt; }
+  h2 { font-size: 13pt; }
+  h3 { font-size: 11pt; }
+
+  /* Show all tabs in print */
+  [role="tabpanel"] { display: block !important; }
+
+  /* Avoid page breaks inside items */
+  .border { border: 1px solid #e5e7eb !important; }
+  .rounded-xl, .rounded-lg { border-radius: 4px !important; }
+
+  /* Remove shadows */
+  .shadow-sm, .shadow, .shadow-md { box-shadow: none !important; }
+
+  /* Force black text */
+  * { color: #111827 !important; }
+  .text-blue-700, .text-blue-600 { color: #1d4ed8 !important; }
+  .text-green-700, .text-green-600 { color: #15803d !important; }
+  .text-red-700, .text-red-600 { color: #b91c1c !important; }
+
+  /* Progress bars */
+  .bg-green-500 { background-color: #22c55e !important; }
+  .bg-yellow-500 { background-color: #eab308 !important; }
+  .bg-red-500 { background-color: #ef4444 !important; }
+  .bg-orange-500 { background-color: #f97316 !important; }
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

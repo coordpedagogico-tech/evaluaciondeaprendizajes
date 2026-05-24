@@ -1,7 +1,7 @@
 import { withAuth } from 'next-auth/middleware'
 
 export default withAuth({
-  pages: { signIn: '/login' }
+  pages: { signIn: '/login' },
 })
 
 export const config = {
@@ -11,6 +11,7 @@ export const config = {
     '/crear/:path*',
     '/pauta/:path*',
     '/tabla/:path*',
-    '/admin/:path*'
-  ]
+    '/historial/:path*',
+    '/admin/:path*',
+  ],
 }

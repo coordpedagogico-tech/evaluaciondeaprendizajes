@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { analyzeWithAI } from '@/lib/ai'
+import { analyzeWithAI, analyzeImageWithAI } from '@/lib/ai'
 import { buildAnalysisPrompt } from '@/lib/curriculum'
 import { prisma } from '@/lib/db'
+
+export const maxDuration = 120
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,10 +16,10 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData()
     const texto = formData.get('texto') as string
-    const titulo = formData.get('titulo') as string || 'Sin título'
-    const asignatura = formData.get('asignatura') as string || 'Sin asignatura'
-    const nivel = formData.get('nivel') as string || 'Sin nivel'
-    const tipo = formData.get('tipo') as string || 'prueba'
+    const titulo = (formData.get('titulo') as string) || 'Sin título'
+    const asignatura = (formData.get('asignatura') as string) || ''
+    const nivel = (formData.get('nivel') as string) || ''
+    const tipo = (formData.get('tipo') as string) || 'prueba'
     const file = formData.get('file') as File | null
 
     let contenidoTexto = texto || ''
@@ -36,23 +38,14 @@ export async function POST(req: NextRequest) {
         const result = await mammoth.extractRawText({ buffer })
         contenidoTexto = result.value
       } else if (['png', 'jpg', 'jpeg', 'webp'].includes(ext || '')) {
-        const Anthropic = (await import('@anthropic-ai/sdk')).default
-        const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
         const base64 = buffer.toString('base64')
-        const mediaType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`
-        const message = await client.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4000,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp', data: base64 } },
-              { type: 'text', text: 'Transcribe el texto de este instrumento de evaluación de forma completa y fiel. Incluye todos los ítems, alternativas, instrucciones y cualquier otro contenido visible.' }
-            ]
-          }]
-        })
-        const content = message.content[0]
-        if (content.type === 'text') contenidoTexto = content.text
+        const mediaType = (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`) as
+          'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
+        contenidoTexto = await analyzeImageWithAI(
+          base64,
+          mediaType,
+          'Transcribe COMPLETAMENTE y con fidelidad absoluta todo el texto visible en esta imagen de instrumento de evaluación. Incluye todos los ítems, alternativas, instrucciones, puntajes y cualquier otro contenido. Mantén la estructura y numeración original.'
+        )
       }
     }
 
@@ -60,7 +53,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No se pudo extraer texto del instrumento' }, { status: 400 })
     }
 
-    const prompt = buildAnalysisPrompt(contenidoTexto)
+    const prompt = buildAnalysisPrompt(contenidoTexto, asignatura, nivel)
     const rawResponse = await analyzeWithAI(prompt)
 
     let analisis
